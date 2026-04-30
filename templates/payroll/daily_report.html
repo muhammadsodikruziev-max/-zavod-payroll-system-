@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Kunlik Hisobot{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-calendar-day"></i> Kunlik Hisobot</h2>
+        <p class="text-muted">Sana bo'yicha ishlab chiqarish va daromadlar to'g'risida hisobot</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-4">
+                        <label for="date" class="form-label">Sana</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="date" 
+                               name="date" 
+                               value="{{ selected_date|date:'Y-m-d' }}"
+                               required>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Hisobotni ko'rsatish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-users"></i></h5>
+                <h3>{{ total_workers }}</h3>
+                <p class="card-text">Ishchilar soni</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-weight"></i></h5>
+                <h3>{{ total_weight|floatformat:3 }} kg</h3>
+                <p class="card-text">Jami vazn</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-cubes"></i></h5>
+                <h3>{{ total_pieces|intcomma }}</h3>
+                <p class="card-text">Jami dona</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-money-bill-wave"></i></h5>
+                <h3>{{ total_earnings|intcomma }} so'm</h3>
+                <p class="card-text">Jami daromad</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> 
+                    {{ selected_date }} sanadagi ishlab chiqarishlar
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if productions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Ishchi</th>
+                                    <th>Detal</th>
+                                    <th>Vazn (kg)</th>
+                                    <th>Dona soni</th>
+                                    <th>Daromad (so'm)</th>
+                                    <th>Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for production in productions %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ production.worker.name }} {{ production.worker.surname }}</strong>
+                                        </td>
+                                        <td>{{ production.part.name }}</td>
+                                        <td>{{ production.weight_kg }}</td>
+                                        <td>{{ production.pieces_count|intcomma }}</td>
+                                        <td class="fw-bold text-success">{{ production.daily_earnings|intcomma }}</td>
+                                        <td>
+                                            <a href="{% url 'worker_details' production.worker.id %}" 
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Ko'rish
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-dark">
+                                <tr>
+                                    <th colspan="2">Jami</th>
+                                    <th>{{ total_weight|floatformat:3 }}</th>
+                                    <th>{{ total_pieces|intcomma }}</th>
+                                    <th>{{ total_earnings|intcomma }}</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">{{ selected_date }} sanada hech qanday ishlab chiqarish yo'q</h5>
+                        <p class="text-muted">Ishlab chiqarish ma'lumotlarini qo'shish uchun <a href="{% url 'select_worker' %}">ishchilar</a> bo'limiga o'ting.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Kunlik Statistika</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>Ishchilar bo'yicha taqsimot:</h6>
+                        {% for production in productions %}
+                            <div class="mb-2">
+                                <strong>{{ production.worker.name }} {{ production.worker.surname }}:</strong>
+                                {{ production.pieces_count|intcomma }} dona = {{ production.daily_earnings|intcomma }} so'm
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Detallar bo'yicha taqsimot:</h6>
+                        {% regroup productions by part as part_list %}
+                        {% for part in part_list %}
+                            <div class="mb-2">
+                                <strong>{{ part.grouper.name }}:</strong>
+                                {% for prod in part.list %}
+                                    {{ prod.pieces_count|intcomma }} dona
+                                {% endfor %}
+                            </div>
+                        {% empty %}
+                            <p class="text-muted">Ma'lumot yo'q</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

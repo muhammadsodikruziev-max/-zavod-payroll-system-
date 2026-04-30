@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Asosiy Sahifa{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="jumbotron bg-primary text-white p-5 rounded mb-4">
+            <h1 class="display-4">
+                <i class="fas fa-industry"></i> Zavod Ish Haqi Hisobi
+            </h1>
+            <p class="lead">Ishchilarning kunlik ishlab chiqarishini va oylik maoshini hisoblash tizimi</p>
+            <hr class="my-4">
+            <p>Bizning tizim sizga ishchilar tanlash, ularning ishlab chiqarishini kuzatish va avtomatik ravishda maosh hisoblash imkonini beradi.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 worker-card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5 class="card-title">Ishchilar</h5>
+                <p class="card-text">Ishchilarni tanlang va ularning ishlab chiqarishini kuzatib boring</p>
+                <a href="{% url 'select_worker' %}" class="btn btn-primary">
+                    <i class="fas fa-arrow-right"></i> Ishchilarni tanlash
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 worker-card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-line fa-3x text-success mb-3"></i>
+                <h5 class="card-title">Kunlik Hisobot</h5>
+                <p class="card-text">Kunlik ishlab chiqarish va daromadlar to'g'risida hisobot</p>
+                <a href="{% url 'daily_report' %}" class="btn btn-success">
+                    <i class="fas fa-arrow-right"></i> Kunlik Hisobot
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 worker-card">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-alt fa-3x text-info mb-3"></i>
+                <h5 class="card-title">Oylik Hisobot</h5>
+                <p class="card-text">Oylik maoshlar va umumiy statistika</p>
+                <a href="{% url 'monthly_report' %}" class="btn btn-info">
+                    <i class="fas fa-arrow-right"></i> Oylik Hisobot
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Tizim Haqida</h5>
+            </div>
+            <div class="card-body">
+                <h6>Qanday ishlaydi?</h6>
+                <ol>
+                    <li><strong>Ishchi tanlash:</strong> Ishchilar ro'yxatidan kerakli ishchini tanlang</li>
+                    <li><strong>Detal tanlash:</strong> Ishlab chiqarilayotgan detalni tanlang</li>
+                    <li><strong>Vazn kiritish:</strong> Ishlangan detallarning vaznini (kg) kiriting</li>
+                    <li><strong>Avtomatik hisoblash:</strong> Tizim avtomatik ravishda dona soni va daromadni hisoblaydi</li>
+                    <li><strong>Hisobotlar:</strong> Kunlik va oylik hisobotlarni ko'ring</li>
+                </ol>
+                
+                <h6 class="mt-3">Hisoblash formulasi:</h6>
+                <div class="calculation-details">
+                    <p><strong>Misol:</strong></p>
+                    <ul>
+                        <li>1 dona detal = 1.4 gramm</li>
+                        <li>1 dona detal narxi = 6 so'm</li>
+                        <li>1000 dona = 1400 gramm = 1.4 kg</li>
+                        <li>1000 dona narxi = 1000 × 6 = 6000 so'm</li>
+                        <li>7 kg = 7000 gramm</li>
+                        <li>7000 gramm dan = 7000 ÷ 1.4 = 5000 dona</li>
+                        <li>5000 dona narxi = 5000 × 6 = 30,000 so'm</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

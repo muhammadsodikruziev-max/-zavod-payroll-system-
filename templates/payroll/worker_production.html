@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ worker.name }} {{ worker.surname }} - Ishlab Chiqarish{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-user"></i> {{ worker.name }} {{ worker.surname }}</h2>
+                <p class="text-muted">Ishlab chiqarish ma'lumotlarini kiritish</p>
+            </div>
+            <a href="{% url 'select_worker' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Orqaga
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-plus"></i> Yangi Ishlab Chiqarish</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="productionForm">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="part" class="form-label">Detal</label>
+                        <select class="form-select" id="part" name="part" required>
+                            <option value="">Detalni tanlang...</option>
+                            {% for part in parts %}
+                                <option value="{{ part.id }}" 
+                                        data-weight="{{ part.weight_grams }}" 
+                                        data-price="{{ part.price_per_piece }}">
+                                    {{ part.name }} ({{ part.weight_grams }}g, {{ part.price_per_piece }} so'm)
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="weight_kg" class="form-label">Vazn (kg)</label>
+                        <input type="number" 
+                               class="form-control" 
+                               id="weight_kg" 
+                               name="weight_kg" 
+                               step="0.001" 
+                               min="0" 
+                               required
+                               placeholder="Masalan: 7.5">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="date" class="form-label">Sana</label>
+                        <input type="date" 
+                               class="form-control" 
+                               id="date" 
+                               name="date" 
+                               value="{{ today|date:'Y-m-d' }}"
+                               required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Saqlash
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-calculator"></i> Hisoblash Natijalari</h5>
+            </div>
+            <div class="card-body">
+                <div id="calculationResult" style="display: none;">
+                    <div class="calculation-details">
+                        <h6>Hisoblash tafsilotlari:</h6>
+                        <p><strong>Tanlangan detal:</strong> <span id="selectedPartName"></span></p>
+                        <p><strong>Bitta detal vazni:</strong> <span id="partWeight"></span> gramm</p>
+                        <p><strong>Bitta detal narxi:</strong> <span id="partPrice"></span> so'm</p>
+                        <p><strong>Kiritilgan vazn:</strong> <span id="inputWeight"></span> kg = <span id="inputWeightGrams"></span> gramm</p>
+                        <hr>
+                        <p><strong>1 kg dan dona soni:</strong> <span id="piecesPerKg"></span> dona</p>
+                        <p><strong>Jami dona soni:</strong> <span id="totalPieces"></span> dona</p>
+                        <p><strong>Jami daromad:</strong> <span id="totalEarnings"></span> so'm</p>
+                    </div>
+                </div>
+                
+                <div id="placeholderMessage" class="text-muted text-center py-5">
+                    <i class="fas fa-calculator fa-3x mb-3"></i>
+                    <p>Detal va vazn kiriting, hisoblash avtomatik amalga oshiriladi</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-history"></i> Oxirgi Ishlab Chiqarishlar</h5>
+            </div>
+            <div class="card-body">
+                {% if productions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Sana</th>
+                                    <th>Detal</th>
+                                    <th>Vazn (kg)</th>
+                                    <th>Dona soni</th>
+                                    <th>Daromad (so'm)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for production in productions %}
+                                    <tr>
+                                        <td>{{ production.date }}</td>
+                                        <td>{{ production.part.name }}</td>
+                                        <td>{{ production.weight_kg }}</td>
+                                        <td>{{ production.pieces_count }}</td>
+                                        <td class="fw-bold">{{ production.daily_earnings|intcomma }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Hozircha hech qanday ishlab chiqarish ma'lumoti yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const partSelect = document.getElementById('part');
+    const weightInput = document.getElementById('weight_kg');
+    const calculationResult = document.getElementById('calculationResult');
+    const placeholderMessage = document.getElementById('placeholderMessage');
+    
+    function calculateProduction() {
+        const partId = partSelect.value;
+        const weightKg = weightInput.value;
+        
+        if (!partId || !weightKg || weightKg <= 0) {
+            calculationResult.style.display = 'none';
+            placeholderMessage.style.display = 'block';
+            return;
+        }
+        
+        const selectedOption = partSelect.options[partSelect.selectedIndex];
+        const partWeight = parseFloat(selectedOption.dataset.weight);
+        const partPrice = parseFloat(selectedOption.dataset.price);
+        const partName = selectedOption.text.split(' (')[0];
+        
+        // Ajax orqali hisoblash
+        fetch(`/calculate/?part_id=${partId}&weight_kg=${weightKg}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    console.error('Xatolik:', data.error);
+                    return;
+                }
+                
+                // Natijalarni ko'rsatish
+                document.getElementById('selectedPartName').textContent = partName;
+                document.getElementById('partWeight').textContent = partWeight;
+                document.getElementById('partPrice').textContent = partPrice;
+                document.getElementById('inputWeight').textContent = weightKg;
+                document.getElementById('inputWeightGrams').textContent = data.weight_grams;
+                document.getElementById('piecesPerKg').textContent = data.pieces_per_kg;
+                document.getElementById('totalPieces').textContent = data.total_pieces;
+                document.getElementById('totalEarnings').textContent = data.total_earnings.toLocaleString('uz-UZ');
+                
+                calculationResult.style.display = 'block';
+                placeholderMessage.style.display = 'none';
+            })
+            .catch(error => console.error('Error:', error));
+    }
+    
+    partSelect.addEventListener('change', calculateProduction);
+    weightInput.addEventListener('input', calculateProduction);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}{{ worker.name }} {{ worker.surname }} - Tafsilotlar{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2><i class="fas fa-user"></i> {{ worker.name }} {{ worker.surname }}</h2>
+                <p class="text-muted">Ishchi haqida to'liq ma'lumotlar</p>
+            </div>
+            <div>
+                <a href="{% url 'worker_production' worker.id %}" class="btn btn-primary me-2">
+                    <i class="fas fa-plus"></i> Ishlab chiqarish qo'shish
+                </a>
+                <a href="{% url 'select_worker' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Orqaga
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Shaxsiy ma'lumotlar</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>Ismi:</strong> {{ worker.name }}</p>
+                <p><strong>Familiyasi:</strong> {{ worker.surname }}</p>
+                <p><strong>Telefon:</strong> {{ worker.phone|default:"Ko'rsatilmagan" }}</p>
+                <p><strong>Ishga qabul qilingan:</strong> {{ worker.hire_date }}</p>
+                <p><strong>Holati:</strong> 
+                    {% if worker.is_active %}
+                        <span class="badge bg-success">Faol</span>
+                    {% else %}
+                        <span class="badge bg-danger">Faol emas</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-weight"></i></h5>
+                <h3>{{ total_weight|floatformat:3 }} kg</h3>
+                <p class="card-text">Oxirgi 30 kunlik jami vazn</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-4">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-money-bill-wave"></i></h5>
+                <h3>{{ total_earnings|intcomma }} so'm</h3>
+                <p class="card-text">Oxirgi 30 kunlik jami daromad</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-history"></i> 
+                    Oxirgi 30 kunlik ishlab chiqarish tarixi
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if productions %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Sana</th>
+                                    <th>Detal</th>
+                                    <th>Vazn (kg)</th>
+                                    <th>Dona soni</th>
+                                    <th>Daromad (so'm)</th>
+                                    <th>Hisoblash tafsilotlari</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for production in productions %}
+                                    <tr>
+                                        <td>{{ production.date }}</td>
+                                        <td>{{ production.part.name }}</td>
+                                        <td>{{ production.weight_kg }}</td>
+                                        <td>{{ production.pieces_count|intcomma }}</td>
+                                        <td class="fw-bold text-success">{{ production.daily_earnings|intcomma }}</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-info" type="button" 
+                                                    data-bs-toggle="collapse" 
+                                                    data-bs-target="#details{{ production.id }}"
+                                                    aria-expanded="false">
+                                                <i class="fas fa-calculator"></i> Hisoblash
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td colspan="6" class="p-0">
+                                            <div class="collapse" id="details{{ production.id }}">
+                                                <div class="card card-body bg-light">
+                                                    <h6>Hisoblash tafsilotlari:</h6>
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <p><strong>Detal:</strong> {{ production.part.name }}</p>
+                                                            <p><strong>Bitta detal vazni:</strong> {{ production.part.weight_grams }} gramm</p>
+                                                            <p><strong>Bitta detal narxi:</strong> {{ production.part.price_per_piece }} so'm</p>
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <p><strong>Kiritilgan vazn:</strong> {{ production.weight_kg }} kg = {{ production.weight_kg|mul:1000 }} gramm</p>
+                                                            <p><strong>1 kg dan dona soni:</strong> {{ production.part.get_pieces_per_kg|floatformat:2 }} dona</p>
+                                                            <p><strong>Jami dona soni:</strong> {{ production.pieces_count }} dona</p>
+                                                            <p><strong>Jami daromad:</strong> {{ production.pieces_count }} × {{ production.part.price_per_piece }} = {{ production.daily_earnings }} so'm</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-dark">
+                                <tr>
+                                    <th colspan="3">Jami</th>
+                                    <th>{{ total_pieces|intcomma }}</th>
+                                    <th>{{ total_earnings|intcomma }}</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">Hozircha hech qanday ishlab chiqarish ma'lumoti yo'q</h5>
+                        <p class="text-muted">Ishlab chiqarish ma'lumotlarini qo'shish uchun yuqoridagi "Ishlab chiqarish qo'shish" tugmasini bosing.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-bar"></i> Statistika</h5>
+            </div>
+            <div class="card-body">
+                {% if productions %}
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Kunlik o'rtacha ko'rsatkichlar:</h6>
+                            <p><strong>O'rtacha vazn:</strong> {% widthratio total_weight productions|length 100 %} kg/kun</p>
+                            <p><strong>O'rtacha dona soni:</strong> {% widthratio total_pieces productions|length 100 %} dona/kun</p>
+                            <p><strong>O'rtacha daromad:</strong> {% widthratio total_earnings productions|length 100 %} so'm/kun</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6>Eng yaxshi kunlar:</h6>
+                            {% for production in productions|dictsortreversed:"daily_earnings"|slice:":3" %}
+                                <div class="mb-2">
+                                    <strong>{{ production.date }}:</strong> 
+                                    {{ production.daily_earnings|intcomma }} so'm 
+                                    ({{ production.pieces_count|intcomma }} dona)
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <h6>Detallar bo'yicha taqsimot:</h6>
+                            {% regroup productions by part as part_list %}
+                            {% for part in part_list %}
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span><strong>{{ part.grouper.name }}:</strong></span>
+                                    <span>
+                                        {% for prod in part.list %}
+                                            {{ prod.pieces_count|intcomma }} dona
+                                        {% endfor %}
+                                        = 
+                                        {% widthratio part.list|sum:"daily_earnings" 1 1|intcomma }} so'm
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="text-muted">Statistika ma'lumotlari mavjud emas</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

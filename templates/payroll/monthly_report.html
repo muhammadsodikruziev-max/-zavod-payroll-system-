@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block title %}Oylik Hisobot{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <h2><i class="fas fa-calendar-alt"></i> Oylik Hisobot</h2>
+        <p class="text-muted">{{ year }}-yil {{ month }}-oy bo'yicha maoshlar va ishlab chiqarish hisoboti</p>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="get" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="year" class="form-label">Yil</label>
+                        <select class="form-select" id="year" name="year">
+                            {% for y in years %}
+                                <option value="{{ y }}" {% if y == year %}selected{% endif %}>{{ y }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="month" class="form-label">Oy</label>
+                        <select class="form-select" id="month" name="month">
+                            <option value="1" {% if month == 1 %}selected{% endif %}>Yanvar</option>
+                            <option value="2" {% if month == 2 %}selected{% endif %}>Fevral</option>
+                            <option value="3" {% if month == 3 %}selected{% endif %}>Mart</option>
+                            <option value="4" {% if month == 4 %}selected{% endif %}>Aprel</option>
+                            <option value="5" {% if month == 5 %}selected{% endif %}>May</option>
+                            <option value="6" {% if month == 6 %}selected{% endif %}>Iyun</option>
+                            <option value="7" {% if month == 7 %}selected{% endif %}>Iyul</option>
+                            <option value="8" {% if month == 8 %}selected{% endif %}>Avgust</option>
+                            <option value="9" {% if month == 9 %}selected{% endif %}>Sentabr</option>
+                            <option value="10" {% if month == 10 %}selected{% endif %}>Oktabr</option>
+                            <option value="11" {% if month == 11 %}selected{% endif %}>Noyabr</option>
+                            <option value="12" {% if month == 12 %}selected{% endif %}>Dekabr</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Hisobotni ko'rsatish
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-users"></i></h5>
+                <h3>{{ salaries|length }}</h3>
+                <p class="card-text">Ishchilar soni</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-money-bill-wave"></i></h5>
+                <h3>{{ total_earnings|intcomma }}</h3>
+                <p class="card-text">Jami daromad (so'm)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-gift"></i></h5>
+                <h3>{{ total_bonus|intcomma }}</h3>
+                <p class="card-text">Jami bonus (so'm)</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body text-center">
+                <h5 class="card-title"><i class="fas fa-hand-holding-usd"></i></h5>
+                <h3>{{ total_net|intcomma }}</h3>
+                <p class="card-text">To'lanadigan jami (so'm)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list"></i> 
+                    {{ year }}-yil {{ month }}-oy maosh jadvali
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if salaries %}
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Ishchi</th>
+                                    <th>Asosiy daromad</th>
+                                    <th>Bonus</th>
+                                    <th>Usullar</th>
+                                    <th>To'lanadigan maosh</th>
+                                    <th>Amallar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for salary in salaries %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>
+                                            <strong>{{ salary.worker.name }} {{ salary.worker.surname }}</strong>
+                                        </td>
+                                        <td class="fw-bold">{{ salary.total_earnings|intcomma }}</td>
+                                        <td class="text-success">{{ salary.bonus|intcomma }}</td>
+                                        <td class="text-danger">{{ salary.deduction|intcomma }}</td>
+                                        <td class="fw-bold text-primary">{{ salary.net_salary|intcomma }}</td>
+                                        <td>
+                                            <a href="{% url 'worker_details' salary.worker.id %}" 
+                                               class="btn btn-sm btn-info">
+                                                <i class="fas fa-eye"></i> Tafsilotlar
+                                            </a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-dark">
+                                <tr>
+                                    <th colspan="2">Jami</th>
+                                    <th>{{ total_earnings|intcomma }}</th>
+                                    <th>{{ total_bonus|intcomma }}</th>
+                                    <th>{{ total_deduction|intcomma }}</th>
+                                    <th>{{ total_net|intcomma }}</th>
+                                    <th></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">{{ year }}-yil {{ month }}-oyda hech qanday maosh ma'lumoti yo'q</h5>
+                        <p class="text-muted">Ishchilar ushbu oyda ishlamagan yoki ma'lumotlar kiritilmagan.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-chart-pie"></i> Maosh taqsimoti</h5>
+            </div>
+            <div class="card-body">
+                {% if salaries %}
+                    <div class="mb-3">
+                        <h6>Eng ko'p maosh olgan ishchilar:</h6>
+                        {% for salary in salaries|dictsortreversed:"net_salary"|slice:":5" %}
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>{{ salary.worker.name }} {{ salary.worker.surname }}</span>
+                                <strong>{{ salary.net_salary|intcomma }} so'm</strong>
+                            </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <div>
+                        <h6>O'rtacha ko'rsatkichlar:</h6>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>O'rtacha oylik maosh:</span>
+                            <strong>{% widthratio total_net salaries|length 100 %} so'm</strong>
+                        </div>
+                        {% with salaries|dictsortreversed:"net_salary"|first as highest_salary %}
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Eng yuqori maosh:</span>
+                            <strong>{{ highest_salary.net_salary|intcomma }} so'm</strong>
+                        </div>
+                        {% endwith %}
+                        {% with salaries|dictsort:"net_salary"|first as lowest_salary %}
+                        <div class="d-flex justify-content-between">
+                            <span>Eng past maosh:</span>
+                            <strong>{{ lowest_salary.net_salary|intcomma }} so'm</strong>
+                        </div>
+                        {% endwith %}
+                    </div>
+                {% else %}
+                    <p class="text-muted">Ma'lumot yo'q</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-info-circle"></i> Hisobot ma'lumotlari</h5>
+            </div>
+            <div class="card-body">
+                <h6>Hisobot davri:</h6>
+                <p><strong>{{ year }}-yil {{ month }}-oy</strong></p>
+                
+                <h6 class="mt-3">Hisobot tafsilotlari:</h6>
+                <ul>
+                    <li>Jami ishchilar soni: {{ salaries|length }} nafar</li>
+                    <li>Jami asosiy daromad: {{ total_earnings|intcomma }} so'm</li>
+                    <li>Jami bonuslar: {{ total_bonus|intcomma }} so'm</li>
+                    <li>Jami usullar: {{ total_deduction|intcomma }} so'm</li>
+                    <li>To'lanadigan jami summa: {{ total_net|intcomma }} so'm</li>
+                </ul>
+                
+                <div class="mt-3">
+                    <a href="{% url 'daily_report' %}" class="btn btn-sm btn-outline-primary me-2">
+                        <i class="fas fa-calendar-day"></i> Kunlik hisobot
+                    </a>
+                    <a href="/admin/payroll/monthlysalary/" class="btn btn-sm btn-outline-secondary">
+                        <i class="fas fa-edit"></i> Tahrirlash
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

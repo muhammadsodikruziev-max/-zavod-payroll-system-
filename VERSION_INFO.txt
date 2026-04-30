@@ -1,0 +1,26 @@
+Zavod Ish Haqi Hisobi Tizimi - Final Version
+===============================================
+
+Ishlaydigan konfiguratsiya:
+- Python: 3.10.11
+- Django: 4.2.7
+- Database: SQLite3
+
+Ishga tushirish komandasi:
+py -3.10 manage.py runserver
+
+Admin panel:
+URL: http://127.0.0.1:8000/admin/
+Login: admin
+Parol: admin123
+
+Asosiy sahifa:
+http://127.0.0.1:8000/
+
+Test ma'lumotlari:
+- Ishchilar: 4 nafar
+- Detallar: 4 xil
+- Ishlab chiqarish: 51 ta yozuv
+
+Yaratilgan sana: 2026-04-30
+Status: TO'LIQ ISHLAYDI ✅
