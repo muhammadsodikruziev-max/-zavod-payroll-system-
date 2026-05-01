@@ -6,9 +6,12 @@ SECRET_KEY = 'django-insecure-your-secret-key-here'
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['*']
+
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://*.replit.dev',
+    'https://*.picard.replit.dev',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
     'http://127.0.0.1:59600',
@@ -89,3 +92,11 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+from django.contrib.auth.models import User
+
+try:
+    if not User.objects.filter(username='admin').exists():
+        User.objects.create_superuser('admin', 'admin@zavod.uz', 'admin123')
+except:
+    pass

@@ -1,0 +1,28 @@
+# Replit terminalga quyidagilarni yozing:
+
+# 1. Mavjud fayllarni o'chirish
+rm -rf *
+
+# 2. GitHub dan kodlarni klonlash
+git clone https://github.com/muhammadsodikruziev-max/-zavod-payroll-system-.git .
+
+# 3. Requirements o'rnatish
+pip install -r requirements.txt
+
+# 4. Ma'lumotlar bazasini yaratish
+python manage.py migrate
+
+# 5. Admin foydalanuvchi yaratish
+python manage.py createsuperuser
+# Login: admin
+# Email: admin@example.com
+# Parol: admin123
+
+# 6. Test ma'lumotlarini qo'shish
+python manage.py shell
+# Shell ochilgandan keyin:
+exec(open('setup_data.py').read())
+exit()
+
+# 7. Serverni ishga tushirish
+python manage.py runserver 0.0.0.0:8000
