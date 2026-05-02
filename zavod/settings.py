@@ -93,7 +93,7 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-from django.contrib.auth.models import User
+
 
 try:
     if not User.objects.filter(username='admin').exists():
